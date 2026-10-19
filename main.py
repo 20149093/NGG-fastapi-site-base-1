@@ -12,6 +12,9 @@
 """
 
 # Imports
+from starlette.authentication import requires, AuthenticationError
+from fastapi.responses import HTMLResponse, JSONResponse
+
 from fastapi_authz import CasbinMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 
@@ -20,7 +23,7 @@ import casbin
 from pathlib import Path
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -70,24 +73,58 @@ async def home(request: Request):
         name="pages/home.html"
     )
 
+@app.exception_handler(AuthenticationError)
+async def auth_exception_handler(
+    request: Request,
+    exc: AuthenticationError,
+):
+    """Return authentication errors as JSON responses."""
+    return JSONResponse(
+        content={
+            "success": False,
+            "message": str(exc),
+            "data": [],
+        },
+        status_code=401,
+    )
+
 @app.get("/api")
 async def api_index():
-    return {
-        "success": True,
-        "message": "Welcome",
-        "data": [
-            {"greeting": "Hello, world."}
-        ],
-    }
+    return JSONResponse(
+        content={
+            "success": True,
+            "message": "Endpoint: /",
+            "data": [
+                {"greeting": "Hello, world."}
+            ],
+        }
+    )
+
 
 @app.get("/api/ds1/res1")
 async def api_ds1_res1():
-    return "Resource 1 accessed"
+    return JSONResponse(
+        content={
+            "success": True,
+            "message": "Endpoint: ds1/res1",
+            "data": [
+                {"greeting": "Resource 1 accessed"}
+            ],
+        }
+    )
 
 
 @app.get("/api/ds2/res2")
 async def api_ds2_res2():
-    return "Resource 2 accessed"
+    return JSONResponse(
+        content={
+            "success": True,
+            "message": "Endpoint: ds2/res2",
+            "data": [
+                {"greeting": "Resource 2 accessed"}
+            ],
+        }
+    )
 
 
 @app.get("/about", response_class=HTMLResponse)
