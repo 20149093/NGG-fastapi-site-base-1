@@ -80,6 +80,15 @@ async def api_index():
         ],
     }
 
+@app.get("/api/ds1/res1")
+async def api_ds1_res1():
+    return "Resource 1 accessed"
+
+
+@app.get("/api/ds2/res2")
+async def api_ds2_res2():
+    return "Resource 2 accessed"
+
 
 @app.get("/about", response_class=HTMLResponse)
 async def about(request: Request):
