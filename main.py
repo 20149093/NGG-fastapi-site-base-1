@@ -12,6 +12,7 @@
 """
 
 # Imports
+import casbin
 from pathlib import Path
 
 from fastapi import FastAPI, Request, HTTPException
@@ -25,6 +26,11 @@ from fastapi.templating import Jinja2Templates
 ## Global Variables
 
 app = FastAPI(title="NGG-InterRIot-AT2_POR-Pt3-2026-S2")
+
+enforcer = casbin.Enforcer(
+    "api/rbac_model.conf",
+    "api/rbac_policy.csv",
+)
 
 BASE_PATH = Path(__file__).parent
 print(BASE_PATH)
