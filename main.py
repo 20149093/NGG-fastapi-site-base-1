@@ -12,6 +12,10 @@
 """
 
 # Imports
+from fastapi_authz import CasbinMiddleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+
+import api.basic_auth as basic_auth
 import casbin
 from pathlib import Path
 
@@ -31,6 +35,11 @@ enforcer = casbin.Enforcer(
     "api/rbac_model.conf",
     "api/rbac_policy.csv",
 )
+
+backend = basic_auth.BasicAuth()
+
+app.add_middleware(CasbinMiddleware, enforcer=enforcer)
+app.add_middleware(AuthenticationMiddleware, backend=backend)
 
 BASE_PATH = Path(__file__).parent
 print(BASE_PATH)
@@ -63,7 +72,13 @@ async def home(request: Request):
 
 @app.get("/api")
 async def api_index():
-    return "Hello, world."
+    return {
+        "success": True,
+        "message": "Welcome",
+        "data": [
+            {"greeting": "Hello, world."}
+        ],
+    }
 
 
 @app.get("/about", response_class=HTMLResponse)
